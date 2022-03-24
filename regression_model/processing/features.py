@@ -143,43 +143,43 @@ class yearbuiltEncTransformer(BaseEstimator, TransformerMixin):
         return X_
 
 
-class areaTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, feat):
-        self.feat = feat
-
-    def fit(self,X,y=None):
-        return self
-    def transform(self,X,y=None):
-        X_ = X.copy()
-        X_[self.feat] = np.where(X_[self.feat].str.contains('N/A /'), np.nan,df['area'])
-        X_[self.feat] = df['area'].str.replace(',', '')
-        X_[self.feat] = np.where(df['area'].str.contains('N/A /'), np.nan,df['area'])
-        X_[self.feat] = np.where(df['area']=='nan', np.nan,df['area'])
-        X_[self.feat] = df['area'].str.rstrip(' SqFt.')
-        self.clean_area = X_[X_[self.feat].str.contains('sq f', na=False)]
-        self.clean_area[self.feat] = clean_area[self.feat].astype(str).map(lambda x: x.lstrip('$'))
-        self.clean_area[self.feat] = clean_area[self.feat].astype(str).map(lambda x: x.rstrip(' / sq f'))
-        self.clean_area[self.feat] = clean_area[self.feat].astype(int)
-        self.clean_area[self.feat] = (clean_area['price']/clean_area['area']).round(2)
-        self.clean_area.drop(['area'], axis=1,inplace=True)
-        self.clean_area['new_area'] = clean_area['new_area'].astype(str)
-        df = pd.merge(df, clean_area, how='left', on=['price', 'bed', 'bathroom', 'year_built',
-       'heating', 'air_conditioner', 'basement', 'security', 'construction',
-       'Floor', 'fireplace', 'Roof', 'Parking', 'Property_type', 'zipcode',
-       'county'])
-        df['area'] = np.where(df['new_area'].isnull(), df['area'], df['new_area'])
-        df['area'] = np.where(df['area']=='—',np.nan,df['area'])
-        df['area'] = df['area'].astype(float)
-        df['area'] = df['area'].fillna(df.groupby(['county','zipcode'])['area'].transform('mean'))
-        df['area'] = df['area'].fillna(df.groupby(['county'])['area'].transform('mean'))
-        df['area'] = df['area'].fillna(df['area'].mean())
-        df.drop('new_area', axis=1, inplace=True)
-
-        self.var = 'year_built_year'
-        X_[self.feat] = X_[self.feat].fillna(2021)
-
-
-        return X_
+# class areaTransformer(BaseEstimator, TransformerMixin):
+#     def __init__(self, feat):
+#         self.feat = feat
+#
+#     def fit(self,X,y=None):
+#         return self
+#     def transform(self,X,y=None):
+#         X_ = X.copy()
+#         X_[self.feat] = np.where(X_[self.feat].str.contains('N/A /'), np.nan,df['area'])
+#         X_[self.feat] = df['area'].str.replace(',', '')
+#         X_[self.feat] = np.where(df['area'].str.contains('N/A /'), np.nan,df['area'])
+#         X_[self.feat] = np.where(df['area']=='nan', np.nan,df['area'])
+#         X_[self.feat] = df['area'].str.rstrip(' SqFt.')
+#         self.clean_area = X_[X_[self.feat].str.contains('sq f', na=False)]
+#         self.clean_area[self.feat] = clean_area[self.feat].astype(str).map(lambda x: x.lstrip('$'))
+#         self.clean_area[self.feat] = clean_area[self.feat].astype(str).map(lambda x: x.rstrip(' / sq f'))
+#         self.clean_area[self.feat] = clean_area[self.feat].astype(int)
+#         self.clean_area[self.feat] = (clean_area['price']/clean_area['area']).round(2)
+#         self.clean_area.drop(['area'], axis=1,inplace=True)
+#         self.clean_area['new_area'] = clean_area['new_area'].astype(str)
+#         df = pd.merge(df, clean_area, how='left', on=['price', 'bed', 'bathroom', 'year_built',
+#        'heating', 'air_conditioner', 'basement', 'security', 'construction',
+#        'Floor', 'fireplace', 'Roof', 'Parking', 'Property_type', 'zipcode',
+#        'county'])
+#         df['area'] = np.where(df['new_area'].isnull(), df['area'], df['new_area'])
+#         df['area'] = np.where(df['area']=='—',np.nan,df['area'])
+#         df['area'] = df['area'].astype(float)
+#         df['area'] = df['area'].fillna(df.groupby(['county','zipcode'])['area'].transform('mean'))
+#         df['area'] = df['area'].fillna(df.groupby(['county'])['area'].transform('mean'))
+#         df['area'] = df['area'].fillna(df['area'].mean())
+#         df.drop('new_area', axis=1, inplace=True)
+#
+#         self.var = 'year_built_year'
+#         X_[self.feat] = X_[self.feat].fillna(2021)
+#
+#
+#         return X_
 
 def find_skewed_boundaries(df, variable, distance):
     IQR = df[variable].quantile(0.75) - df[variable].quantile(0.25)
@@ -254,67 +254,33 @@ class dummiesTransformer(BaseEstimator, TransformerMixin):
 
 
 def get_data(df):
+    new_df = df[~df[config.model_config.target].str.contains("mo",na=False)].copy()
+    new_df[config.model_config.target] = new_df[config.model_config.target].str.replace(',', '',regex=False)
+    new_df[config.model_config.target] = new_df[config.model_config.target].str.replace('$', '',regex=False)
+    new_df[config.model_config.target] = new_df[config.model_config.target].str.replace('+', '',regex=False)
+    new_df[config.model_config.target] = new_df[config.model_config.target].str.replace('Est. ', '',regex=False)
+    new_df[config.model_config.target] =  pd.to_numeric(new_df[config.model_config.target], errors='coerce')
+    new_df[config.model_config.target] = new_df.groupby(config.model_config.variables_to_drop)[config.model_config.target].transform(lambda x:x.fillna(x.mean()))
 
-    # df = df[config.model_config.all_features].copy()
-
-    # df = df[~df.price.str.contains("mo",na=False)]
-    # df[config.model_config.target] = df[config.model_config.target].str.replace(',', '')
-    # df[config.model_config.target] = df[config.model_config.target].str.replace('$', '')
-    # df[config.model_config.target] = df[config.model_config.target].str.replace('+', '')
-    # df[config.model_config.target] = df[config.model_config.target].str.replace('Est. ', '')
-    # df[config.model_config.target] =  pd.to_numeric(df[config.model_config.target], errors='coerce')
-    # df[config.model_config.target] = df.groupby(config.model_config.variables_to_drop)[config.model_config.target].transform(lambda x:x.fillna(x.mean()))
-    #
-    # df[config.model_config.num_var] = np.where(df[config.model_config.num_var].str.contains('N/A /'), np.nan,df[config.model_config.num_var])
-    # df[config.model_config.num_var] = df[config.model_config.num_var].str.replace(',', '')
-    # df[config.model_config.num_var] = np.where(df[config.model_config.num_var].str.contains('N/A /'), np.nan,df[config.model_config.num_var])
-    # df[config.model_config.num_var] = np.where(df[config.model_config.num_var]=='nan', np.nan,df[config.model_config.num_var])
-    # df[config.model_config.num_var] = df[config.model_config.num_var].str.rstrip(' SqFt.')
-    # clean_area = df[df[config.model_config.num_var].str.contains('sq f', na=False)]
-    # clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(str).map(lambda x: x.lstrip('$'))
-    # clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(str).map(lambda x: x.rstrip(' / sq f'))
-    # clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(int)
-    # clean_area['new_area'] = (clean_area[config.model_config.target]/clean_area[config.model_config.num_var]).round(2)
-    # clean_area.drop([config.model_config.num_var], axis=1,inplace=True)
-    # clean_area['new_area'] = clean_area['new_area'].astype(str)
-    # df = pd.merge(df, clean_area, how='left', on=[config.model_config.features])
-    # df[config.model_config.num_var] = np.where(df['new_area'].isnull(), df[config.model_config.num_var], df['new_area'])
-    # df[config.model_config.num_var] = np.where(df[config.model_config.num_var]=='—',np.nan,df[config.model_config.num_var])
-    # df[config.model_config.num_var] = df[config.model_config.num_var].astype(float)
-    # df[config.model_config.num_var] = df[config.model_config.num_var].fillna(df.groupby(config.model_config.variables_to_drop)[config.model_config.num_var].transform('mean'))
-    # df[config.model_config.num_var] = df[config.model_config.num_var].fillna(df.groupby(['county'])[config.model_config.num_var].transform('mean'))
-    # df[config.model_config.num_var] = df[config.model_config.num_var].fillna(df[config.model_config.num_var].mean())
-    # df.drop('new_area', axis=1, inplace=True)
-
-
-    new_df = df[~df.price.str.contains("mo",na=False)].copy()
-    new_df['price'] = new_df['price'].str.replace(',', '',regex=False)
-    new_df['price'] = new_df['price'].str.replace('$', '',regex=False)
-    new_df['price'] = new_df['price'].str.replace('+', '',regex=False)
-    new_df['price'] = new_df['price'].str.replace('Est. ', '',regex=False)
-    new_df['price'] =  pd.to_numeric(new_df['price'], errors='coerce')
-    new_df['price'] = new_df.groupby(['county','zipcode'])['price'].transform(lambda x:x.fillna(x.mean()))
-
-    new_df['area'] = np.where(new_df['area'].str.contains('N/A /'), np.nan,new_df['area'])
-    new_df['area'] = new_df['area'].str.replace(',', '',regex=False)
-    new_df['area'] = np.where(new_df['area'].str.contains('N/A /'), np.nan,new_df['area'])
-    new_df['area'] = np.where(new_df['area']=='nan', np.nan,new_df['area'])
-    new_df['area'] = new_df['area'].str.rstrip(' SqFt.')
-    clean_area = new_df[new_df['area'].str.contains('sq f', na=False)].copy()
-    clean_area['area'] = clean_area['area'].astype(str).map(lambda x: x.lstrip('$'))
-    clean_area['area'] = clean_area['area'].astype(str).map(lambda x: x.rstrip(' / sq f'))
-    clean_area['area'] = clean_area['area'].astype(int)
-    clean_area['new_area'] = (clean_area['price']/clean_area['area']).round(2)
-    clean_area.drop(['area'], axis=1,inplace=True)
+    new_df[config.model_config.num_var] = np.where(new_df[config.model_config.num_var].str.contains('N/A /'), np.nan,new_df[config.model_config.num_var])
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].str.replace(',', '',regex=False)
+    new_df[config.model_config.num_var] = np.where(new_df[config.model_config.num_var].str.contains('N/A /'), np.nan,new_df[config.model_config.num_var])
+    new_df[config.model_config.num_var] = np.where(new_df[config.model_config.num_var]=='nan', np.nan,new_df[config.model_config.num_var])
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].str.rstrip(' SqFt.')
+    clean_area = new_df[new_df[config.model_config.num_var].str.contains('sq f', na=False)].copy()
+    clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(str).map(lambda x: x.lstrip('$'))
+    clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(str).map(lambda x: x.rstrip(' / sq f'))
+    clean_area[config.model_config.num_var] = clean_area[config.model_config.num_var].astype(int)
+    clean_area['new_area'] = (clean_area[config.model_config.target]/clean_area[config.model_config.num_var]).round(2)
+    clean_area.drop([config.model_config.num_var], axis=1,inplace=True)
     clean_area['new_area'] = clean_area['new_area'].astype(str)
-    new_df = pd.merge(new_df, clean_area, how='left', on=['bed', 'bathroom', 'year_built', 'heating', 'Property_type',
-       'price', 'county', 'zipcode'])
-    new_df['area'] = np.where(new_df['new_area'].isnull(), new_df['area'], new_df['new_area'])
-    new_df['area'] = np.where(new_df['area']=='—',np.nan,new_df['area'])
-    new_df['area'] = new_df['area'].astype(float)
-    new_df['area'] = new_df['area'].fillna(new_df.groupby(['county','zipcode'])['area'].transform('mean'))
-    new_df['area'] = new_df['area'].fillna(new_df.groupby(['county'])['area'].transform('mean'))
-    new_df['area'] = new_df['area'].fillna(new_df['area'].mean())
+    new_df = pd.merge(new_df, clean_area, how='left', on=config.model_config.merge_features)
+    new_df[config.model_config.num_var] = np.where(new_df['new_area'].isnull(), new_df[config.model_config.num_var], new_df['new_area'])
+    new_df[config.model_config.num_var] = np.where(new_df[config.model_config.num_var]=='—',np.nan,new_df[config.model_config.num_var])
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].astype(float)
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].fillna(new_df.groupby(config.model_config.variables_to_drop)[config.model_config.num_var].transform('mean'))
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].fillna(new_df.groupby(['county'])[config.model_config.num_var].transform('mean'))
+    new_df[config.model_config.num_var] = new_df[config.model_config.num_var].fillna(new_df[config.model_config.num_var].mean())
     new_df.drop('new_area', axis=1, inplace=True)
 
     return new_df

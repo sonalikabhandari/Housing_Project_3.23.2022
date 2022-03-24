@@ -37,13 +37,14 @@ class ModelConfig(BaseModel):
     random_state: int
     alpha: float
     variables_to_drop: List[str]
-    categorical_heating: List[str]
-    categorical_property_type: List[str]
+    categorical_heating: str
+    categorical_property_type: str
     cat_vars_to_num: List[str]
-    temporal_year_built: List[str]
-    num_var: List[str]
+    temporal_year_built: str
+    num_var: str
     cat_to_dummies: List[str]
     all_features: List[str]
+    merge_features: List[str]
 
 
 

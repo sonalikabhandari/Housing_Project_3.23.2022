@@ -41,15 +41,15 @@ def drop_col_inputs(*, input_data: pd.DataFrame) -> pd.DataFrame:
 #     return validated_data, errors
 #
 #
-# class HouseDataInputSchema(BaseModel):
-#     bed: Optional[str]
-#     bathroom: Optional[int]
-#     year_built: Optional[str]
-#     heating: Optional[str]
-#     Property_type: Optional[str]
-#     area: Optional[float]
-#     county: Optional[float]
-#     zipcode: Optional[str]
-#
-# class MultipleHouseDataInputs(BaseModel):
-#     inputs: List[HouseDataInputSchema]
+class HouseDataInputSchema(BaseModel):
+    bed: Optional[str]
+    bathroom: Optional[int]
+    year_built: Optional[str]
+    heating: Optional[str]
+    Property_type: Optional[str]
+    area: Optional[float]
+    county: Optional[float]
+    zipcode: Optional[str]
+
+class MultipleHouseDataInputs(BaseModel):
+    inputs: List[HouseDataInputSchema]

@@ -5,20 +5,20 @@ from pathlib import Path
 
 from setuptools import find_packages, setup
 
-# Package meta-data.
-# NAME = 'tid-regression-model'
-# DESCRIPTION = "regression model package from Train In Data."
-# URL = "https://github.com/sonalikabhandari/housing_project_package.git"
-# EMAIL = "sonalika.bhandari4292@gmail.com"
-# AUTHOR = "SonalikaBhandari"
-# REQUIRES_PYTHON = ">=3.6.0"
-
+Package meta-data.
 NAME = 'tid-regression-model'
-DESCRIPTION = "Example regression model package from Train In Data."
-URL = "https://github.com/trainindata/testing-and-monitoring-ml-deployments"
-EMAIL = "christopher.samiullah@protonmail.com"
-AUTHOR = "ChristopherGS"
+DESCRIPTION = "regression model package from Train In Data."
+URL = "https://github.com/sonalikabhandari/housing_project_package.git"
+EMAIL = "sonalika.bhandari4292@gmail.com"
+AUTHOR = "SonalikaBhandari"
 REQUIRES_PYTHON = ">=3.6.0"
+
+# NAME = 'tid-regression-model'
+# DESCRIPTION = "Example regression model package from Train In Data."
+# URL = "https://github.com/trainindata/testing-and-monitoring-ml-deployments"
+# EMAIL = "christopher.samiullah@protonmail.com"
+# AUTHOR = "ChristopherGS"
+# REQUIRES_PYTHON = ">=3.6.0"
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
 # Except, perhaps the License and Trove Classifiers!
