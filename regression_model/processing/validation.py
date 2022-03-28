@@ -14,7 +14,7 @@ def drop_col_inputs(*, input_data: pd.DataFrame) -> pd.DataFrame:
         var
         for var in validated_data.columns
         if var
-        not in config.model_config.features + config.model_config.target
+        not in config.model_config.all_features
     ]
     validated_data.drop(new_vars_with_na,axis=1, inplace=True)
 

@@ -2,7 +2,6 @@ from regression_model.config.core import config
 from regression_model.processing.features import bed_bath_transformer
 
 
-
 def test_temporal_variable_transformer(sample_input_data):
     # Given
 
