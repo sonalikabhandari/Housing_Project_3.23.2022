@@ -73,14 +73,14 @@ class heatEncTransformer(BaseEstimator, TransformerMixin):
         X_ = X.copy()
 
 
-        X_[self.feat] = np.where(X_[self.feat] .isnull(),'No',X_[self.feat] )
+        X_[self.feat] = np.where(X_[self.feat].isnull(),'No',X_[self.feat] )
 
-        X_[self.feat]  = X_[self.feat] .astype(str).map(lambda x: x.lstrip('Heating: '))
-        X_[self.feat]  = X_[self.feat] .astype(str).map(lambda x: x.lstrip('Details: '))
+        X_[self.feat]  = X_[self.feat].astype(str).map(lambda x: x.lstrip('Heating: '))
+        X_[self.feat]  = X_[self.feat].astype(str).map(lambda x: x.lstrip('Details: '))
 
 
 
-        X_[self.feat]  = np.where(X_[self.feat] .isin(['an','Unknown','No',' ','','None','nan']),'No','Yes')
+        X_[self.feat]  = np.where(X_[self.feat].isin(['an','Unknown','No',' ','','None','nan']),'No','Yes')
 
         print(pd.DataFrame(X_).head())
         print(X_.shape)
@@ -238,7 +238,7 @@ class columnDropperTransformer(BaseEstimator, TransformerMixin):
         return X_.drop(self.columns, axis=1)
 
 
-class dummiesTransformer(BaseEstimator, TransformerMixin):
+class factorizeTransformer(BaseEstimator, TransformerMixin):
     def __init__(self, feat_list):
         self.feat_list = feat_list
 
@@ -247,7 +247,8 @@ class dummiesTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X,y=None):
         X_ = X.copy()
-        X_ = pd.get_dummies(X_, columns=self.feat_list, drop_first=True)
+        X_[self.feat_list] = X_[self.feat_list].apply(lambda x:pd.factorize(x)[0])
+        # X_ = pd.get_dummies(X_, columns=self.feat_list, drop_first=True)
         print(pd.DataFrame(X_).head())
         print(X_.shape)
         return X_

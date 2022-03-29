@@ -4,6 +4,8 @@ from pipeline import gridsearch
 from processing.data_manager import load_dataset, save_pipeline
 from processing.features import get_data
 from sklearn.model_selection import train_test_split
+import joblib
+
 
 def run_training() -> None:
     """Train the model."""
@@ -25,6 +27,8 @@ def run_training() -> None:
 
     # fit model
     gridsearch.fit(X_train, y_train)
+
+    joblib.dump(gridsearch.best_estimator_, 'grid.pkl')
 
     # persist trained model
     save_pipeline(pipeline_to_persist=gridsearch)

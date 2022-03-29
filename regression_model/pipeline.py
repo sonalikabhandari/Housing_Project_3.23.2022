@@ -8,14 +8,14 @@ from sklearn.model_selection import GridSearchCV
 
 pipeline = Pipeline([
 #     ("filter_data",filterDataTransformer()),
-    ("heat_Enc", pp.heatEncTransformer(config.model_config.categorical_heating)),
-     ("property_Enc",pp.propertyEncTransformer(config.model_config.categorical_property_type)),
+    # ("heat_Enc", pp.heatEncTransformer(config.model_config.categorical_heating)),
+    #  ("property_Enc",pp.propertyEncTransformer(config.model_config.categorical_property_type)),
     ("bed_bath_Enc",pp.bed_bath_transformer(config.model_config.cat_vars_to_num,config.model_config.variables_to_drop)),
     ("year_Enc", pp.yearbuiltEncTransformer(config.model_config.temporal_year_built)),
     ("outliers_feat", pp.OutliersTransformer(config.model_config.num_var)),
     ('Box_Cox_trans',pp.BoxCoxTransformer(config.model_config.num_var)),
     ("columnDropper", pp.columnDropperTransformer(config.model_config.variables_to_drop)),
-     ('converted_dummies',pp.dummiesTransformer(config.model_config.cat_to_dummies)),
+     ('converted_dummies',pp.factorizeTransformer(config.model_config.cat_to_dummies)),
      ('scaler',MinMaxScaler()),
      ("rfr", RandomForestRegressor(bootstrap=True, ccp_alpha=0.0, criterion='mse',
                       max_depth=None, max_features='auto', max_leaf_nodes=None,
